@@ -223,8 +223,10 @@ class LoadImages:
 
         # Padded resize
         img = letterbox(img0, self.img_size, stride=self.stride, auto=self.auto)[0]
+        print(f"letterbox {img0.shape=}, {self.img_size=}, {img.shape=}")
+        from PIL import Image
+        Image.fromarray(img).save('test_im.png')
 
-        # Convert
         img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
         img = np.ascontiguousarray(img)
 

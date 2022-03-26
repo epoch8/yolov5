@@ -260,9 +260,12 @@ def export_saved_model(model, im, file, dynamic,
         batch_size, ch, *imgsz = list(im.shape)  # BCHW
 
         tf_model = TFModel(cfg=model.yaml, model=model, nc=model.nc, imgsz=imgsz)
-        im = tf.zeros((batch_size, *imgsz, ch))  # BHWC order for TensorFlow
+        if not dynamic:
+            im = tf.zeros((batch_size, None, None, ch))
+        else:
+            im = tf.zeros((batch_size, *imgsz, ch))  # BHWC order for TensorFlow
         _ = tf_model.predict(im, tf_nms, agnostic_nms, topk_per_class, topk_all, iou_thres, conf_thres)
-        inputs = tf.keras.Input(shape=(*imgsz, ch), batch_size=None if dynamic else batch_size)
+        inputs = tf.keras.Input(shape=((None, None, ch) if dynamic else (*imgsz, ch)))
         outputs = tf_model.predict(inputs, tf_nms, agnostic_nms, topk_per_class, topk_all, iou_thres, conf_thres)
         keras_model = tf.keras.Model(inputs=inputs, outputs=outputs)
         keras_model.trainable = False
@@ -286,6 +289,7 @@ def export_saved_model(model, im, file, dynamic,
         return keras_model, f
     except Exception as e:
         LOGGER.info(f'\n{prefix} export failure: {e}')
+        raise e
         return None, None
 
 
