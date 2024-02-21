@@ -385,7 +385,7 @@ def check_git_info(path="."):
             commit = None
         try:
             branch = repo.active_branch.name  # i.e. 'main'
-        except TypeError:  # not on any branch
+        except (TypeError, ValueError):  # not on any branch
             branch = None  # i.e. 'detached HEAD' state
         return {"remote": remote, "branch": branch, "commit": commit}
     except git.exc.InvalidGitRepositoryError:  # path is not a git dir
