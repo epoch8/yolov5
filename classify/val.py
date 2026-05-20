@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 """
 Validate a trained YOLOv5 classification model on a classification dataset.
 
@@ -68,6 +68,7 @@ def run(
     criterion=None,
     pbar=None,
 ):
+    """Validates a YOLOv5 classification model on a dataset, computing metrics like top1 and top5 accuracy."""
     # Initialize/load model and set device
     training = model is not None
     if training:  # called by train.py
@@ -147,6 +148,7 @@ def run(
 
 
 def parse_opt():
+    """Parses and returns command line arguments for YOLOv5 model evaluation and inference settings."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", type=str, default=ROOT / "../datasets/mnist", help="dataset path")
     parser.add_argument("--weights", nargs="+", type=str, default=ROOT / "yolov5s-cls.pt", help="model.pt path(s)")
@@ -166,6 +168,7 @@ def parse_opt():
 
 
 def main(opt):
+    """Executes the YOLOv5 model prediction workflow, handling argument parsing and requirement checks."""
     check_requirements(ROOT / "requirements.txt", exclude=("tensorboard", "thop"))
     run(**vars(opt))
 

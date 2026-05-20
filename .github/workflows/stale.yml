@@ -1,6 +1,11 @@
-# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
 name: Close stale issues
+
+permissions:
+  issues: write
+  pull-requests: write
+
 on:
   schedule:
     - cron: "0 0 * * *" # Runs at 00:00 UTC every day
@@ -9,7 +14,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v9
+      - uses: actions/stale@v10
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -19,7 +24,7 @@ jobs:
             For additional resources and information, please see the links below:
 
             - **Docs**: https://docs.ultralytics.com
-            - **HUB**: https://hub.ultralytics.com
+            - **Platform**: https://platform.ultralytics.com
             - **Community**: https://community.ultralytics.com
 
             Feel free to inform us of any other **issues** you discover or **feature requests** that come to mind in the future. Pull Requests (PRs) are also always welcomed!
@@ -34,7 +39,7 @@ jobs:
             For additional resources and information, please see the links below:
 
             - **Docs**: https://docs.ultralytics.com
-            - **HUB**: https://hub.ultralytics.com
+            - **Platform**: https://platform.ultralytics.com
             - **Community**: https://community.ultralytics.com
 
             Thank you for your contributions to YOLO 🚀 and Vision AI ⭐

@@ -1,3 +1,5 @@
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -10,8 +12,10 @@ from .general import crop_mask
 
 
 class ComputeLoss:
-    # Compute losses
+    """Computes the YOLOv5 model's loss components including classification, objectness, box, and mask losses."""
+
     def __init__(self, model, autobalance=False, overlap=False):
+        """Initialize compute loss function for YOLOv5 models with options for autobalancing and overlap handling."""
         self.sort_obj_iou = False
         self.overlap = overlap
         device = next(model.parameters()).device  # get model device
@@ -41,6 +45,7 @@ class ComputeLoss:
         self.device = device
 
     def __call__(self, preds, targets, masks):  # predictions, targets, model
+        """Evaluates YOLOv5 model's loss for given predictions, targets, and masks; returns total loss components."""
         p, proto = preds
         bs, nm, mask_h, mask_w = proto.shape  # batch size, number of masks, mask height, mask width
         lcls = torch.zeros(1, device=self.device)
@@ -54,8 +59,7 @@ class ComputeLoss:
             b, a, gj, gi = indices[i]  # image, anchor, gridy, gridx
             tobj = torch.zeros(pi.shape[:4], dtype=pi.dtype, device=self.device)  # target obj
 
-            n = b.shape[0]  # number of targets
-            if n:
+            if n := b.shape[0]:
                 pxy, pwh, _, pcls, pmask = pi[b, a, gj, gi].split((2, 2, 1, self.nc, nm), 1)  # subset of predictions
 
                 # Box regression
@@ -109,13 +113,15 @@ class ComputeLoss:
         return loss * bs, torch.cat((lbox, lseg, lobj, lcls)).detach()
 
     def single_mask_loss(self, gt_mask, pred, proto, xyxy, area):
-        # Mask loss for one image
+        """Calculates and normalizes single mask loss for YOLOv5 between predicted and ground truth masks."""
         pred_mask = (pred @ proto.view(self.nm, -1)).view(-1, *proto.shape[1:])  # (n,32) @ (32,80,80) -> (n,80,80)
         loss = F.binary_cross_entropy_with_logits(pred_mask, gt_mask, reduction="none")
         return (crop_mask(loss, xyxy).mean(dim=(1, 2)) / area).mean()
 
     def build_targets(self, p, targets):
-        # Build targets for compute_loss(), input targets(image,class,x,y,w,h)
+        """Prepares YOLOv5 targets for loss computation; inputs targets (image, class, x, y, w, h), output target
+        classes/boxes.
+        """
         na, nt = self.na, targets.shape[0]  # number of anchors, targets
         tcls, tbox, indices, anch, tidxs, xywhn = [], [], [], [], [], []
         gain = torch.ones(8, device=self.device)  # normalized to gridspace gain

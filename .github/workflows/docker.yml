@@ -1,7 +1,11 @@
-# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+
 # Builds ultralytics/yolov5:latest images on DockerHub https://hub.docker.com/r/ultralytics/yolov5
 
 name: Publish Docker Images
+
+permissions:
+  contents: read # Required for checkout only; Docker Hub push uses repository secrets.
 
 on:
   push:
@@ -15,24 +19,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # copy full .git directory to access full git history in Docker images
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push arm64 image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         continue-on-error: true
         with:
           context: .
@@ -42,7 +46,7 @@ jobs:
           tags: ultralytics/yolov5:latest-arm64
 
       - name: Build and push CPU image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         continue-on-error: true
         with:
           context: .
@@ -51,7 +55,7 @@ jobs:
           tags: ultralytics/yolov5:latest-cpu
 
       - name: Build and push GPU image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         continue-on-error: true
         with:
           context: .

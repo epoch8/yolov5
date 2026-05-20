@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 """AutoAnchor utils."""
 
 import random
@@ -15,7 +15,7 @@ PREFIX = colorstr("AutoAnchor: ")
 
 
 def check_anchor_order(m):
-    # Check anchor order against stride order for YOLOv5 Detect() module m, and correct if necessary
+    """Checks and corrects anchor order against stride in YOLOv5 Detect() module if necessary."""
     a = m.anchors.prod(-1).mean(-1).view(-1)  # mean anchor area per output layer
     da = a[-1] - a[0]  # delta a
     ds = m.stride[-1] - m.stride[0]  # delta s
@@ -26,13 +26,14 @@ def check_anchor_order(m):
 
 @TryExcept(f"{PREFIX}ERROR")
 def check_anchors(dataset, model, thr=4.0, imgsz=640):
-    # Check anchor fit to data, recompute if necessary
+    """Evaluates anchor fit to dataset and adjusts if necessary, supporting customizable threshold and image size."""
     m = model.module.model[-1] if hasattr(model, "module") else model.model[-1]  # Detect()
     shapes = imgsz * dataset.shapes / dataset.shapes.max(1, keepdims=True)
     scale = np.random.uniform(0.9, 1.1, size=(shapes.shape[0], 1))  # augment scale
     wh = torch.tensor(np.concatenate([l[:, 3:5] * s for s, l in zip(shapes * scale, dataset.labels)])).float()  # wh
 
     def metric(k):  # compute metric
+        """Computes ratio metric, anchors above threshold, and best possible recall for YOLOv5 anchor evaluation."""
         r = wh[:, None] / k[None]
         x = torch.min(r, 1 / r).min(2)[0]  # ratio metric
         best = x.max(1)[0]  # best_x
@@ -63,10 +64,9 @@ def check_anchors(dataset, model, thr=4.0, imgsz=640):
 
 
 def kmean_anchors(dataset="./data/coco128.yaml", n=9, img_size=640, thr=4.0, gen=1000, verbose=True):
-    """
-    Creates kmeans-evolved anchors from training dataset.
+    """Creates kmeans-evolved anchors from training dataset.
 
-    Arguments:
+    Args:
         dataset: path to data.yaml, or a loaded dataset
         n: number of anchors
         img_size: image size used for training
@@ -74,10 +74,10 @@ def kmean_anchors(dataset="./data/coco128.yaml", n=9, img_size=640, thr=4.0, gen
         gen: generations to evolve anchors using genetic algorithm
         verbose: print all results
 
-    Return:
+    Returns:
         k: kmeans evolved anchors
 
-    Usage:
+    Examples:
         from utils.autoanchor import *; _ = kmean_anchors()
     """
     from scipy.cluster.vq import kmeans
@@ -86,16 +86,19 @@ def kmean_anchors(dataset="./data/coco128.yaml", n=9, img_size=640, thr=4.0, gen
     thr = 1 / thr
 
     def metric(k, wh):  # compute metrics
+        """Computes ratio metric, anchors above threshold, and best possible recall for YOLOv5 anchor evaluation."""
         r = wh[:, None] / k[None]
         x = torch.min(r, 1 / r).min(2)[0]  # ratio metric
         # x = wh_iou(wh, torch.tensor(k))  # iou metric
         return x, x.max(1)[0]  # x, best_x
 
     def anchor_fitness(k):  # mutation fitness
+        """Evaluates fitness of YOLOv5 anchors by computing recall and ratio metrics for an anchor evolution process."""
         _, best = metric(torch.tensor(k, dtype=torch.float32), wh)
         return (best * (best > thr).float()).mean()  # fitness
 
     def print_results(k, verbose=True):
+        """Sorts and logs kmeans-evolved anchor metrics and best possible recall values for YOLOv5 anchor evaluation."""
         k = k[np.argsort(k.prod(1))]  # sort small to large
         x, best = metric(k, wh0)
         bpr, aat = (best > thr).float().mean(), (x > thr).float().mean() * n  # best possible recall, anch > thr

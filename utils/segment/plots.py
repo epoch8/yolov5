@@ -1,3 +1,5 @@
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+
 import contextlib
 import math
 from pathlib import Path
@@ -15,7 +17,7 @@ from ..plots import Annotator, colors
 
 @threaded
 def plot_images_and_masks(images, targets, masks, paths=None, fname="images.jpg", names=None):
-    # Plot image grid with labels
+    """Plots a grid of images, their labels, and masks with optional resizing and annotations, saving to fname."""
     if isinstance(images, torch.Tensor):
         images = images.cpu().float().numpy()
     if isinstance(targets, torch.Tensor):
@@ -111,7 +113,10 @@ def plot_images_and_masks(images, targets, masks, paths=None, fname="images.jpg"
 
 
 def plot_results_with_masks(file="path/to/results.csv", dir="", best=True):
-    # Plot training results.csv. Usage: from utils.plots import *; plot_results('path/to/results.csv')
+    """Plots training results from CSV files, plotting best or last result highlights based on `best` parameter.
+
+    Example: from utils.plots import *; plot_results('path/to/results.csv')
+    """
     save_dir = Path(file).parent if file else Path(dir)
     fig, ax = plt.subplots(2, 8, figsize=(18, 6), tight_layout=True)
     ax = ax.ravel()
@@ -137,8 +142,6 @@ def plot_results_with_masks(file="path/to/results.csv", dir="", best=True):
                     # last
                     ax[i].scatter(x[-1], y[-1], color="r", label="last", marker="*", linewidth=3)
                     ax[i].set_title(s[j] + f"\n{round(y[-1], 5)}")
-                # if j in [8, 9, 10]:  # share train and val loss y axes
-                #     ax[i].get_shared_y_axes().join(ax[i], ax[i - 5])
         except Exception as e:
             print(f"Warning: Plotting error for {f}: {e}")
     ax[1].legend()

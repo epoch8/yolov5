@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 """
 Run YOLOv5 classification inference on images, videos, directories, globs, YouTube, webcam, streams, etc.
 
@@ -84,6 +84,7 @@ def run(
     dnn=False,  # use OpenCV DNN for ONNX inference
     vid_stride=1,  # video frame-rate stride
 ):
+    """Conducts YOLOv5 classification inference on diverse input sources and saves results."""
     source = str(source)
     save_img = not nosave and not source.endswith(".txt")  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
@@ -146,7 +147,7 @@ def run(
             save_path = str(save_dir / p.name)  # im.jpg
             txt_path = str(save_dir / "labels" / p.stem) + ("" if dataset.mode == "image" else f"_{frame}")  # im.txt
 
-            s += "%gx%g " % im.shape[2:]  # print string
+            s += "{:g}x{:g} ".format(*im.shape[2:])  # print string
             annotator = Annotator(im0, example=str(names), pil=True)
 
             # Print results
@@ -191,7 +192,7 @@ def run(
                     vid_writer[i].write(im0)
 
         # Print time (inference-only)
-        LOGGER.info(f"{s}{dt[1].dt * 1E3:.1f}ms")
+        LOGGER.info(f"{s}{dt[1].dt * 1e3:.1f}ms")
 
     # Print results
     t = tuple(x.t / seen * 1e3 for x in dt)  # speeds per image
@@ -204,6 +205,7 @@ def run(
 
 
 def parse_opt():
+    """Parses command line arguments for YOLOv5 inference settings including model, source, device, and image size."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--weights", nargs="+", type=str, default=ROOT / "yolov5s-cls.pt", help="model path(s)")
     parser.add_argument("--source", type=str, default=ROOT / "data/images", help="file/dir/URL/glob/screen/0(webcam)")
@@ -229,6 +231,7 @@ def parse_opt():
 
 
 def main(opt):
+    """Executes YOLOv5 model inference with options for ONNX DNN and video frame-rate stride adjustments."""
     check_requirements(ROOT / "requirements.txt", exclude=("tensorboard", "thop"))
     run(**vars(opt))
 

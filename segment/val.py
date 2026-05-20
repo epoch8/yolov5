@@ -1,4 +1,4 @@
-# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 """
 Validate a trained YOLOv5 segment model on a segment dataset.
 
@@ -71,7 +71,9 @@ from utils.torch_utils import de_parallel, select_device, smart_inference_mode
 
 
 def save_one_txt(predn, save_conf, shape, file):
-    # Save one txt result
+    """Saves detection results in txt format; includes class, xywh (normalized), optionally confidence if `save_conf` is
+    True.
+    """
     gn = torch.tensor(shape)[[1, 0, 1, 0]]  # normalization gain whwh
     for *xyxy, conf, cls in predn.tolist():
         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
@@ -81,10 +83,14 @@ def save_one_txt(predn, save_conf, shape, file):
 
 
 def save_one_json(predn, jdict, path, class_map, pred_masks):
-    # Save one JSON result {"image_id": 42, "category_id": 18, "bbox": [258.15, 41.29, 348.26, 243.78], "score": 0.236}
+    """Saves a JSON file with detection results including bounding boxes, category IDs, scores, and segmentation masks.
+
+    Example JSON result: {"image_id": 42, "category_id": 18, "bbox": [258.15, 41.29, 348.26, 243.78], "score": 0.236}.
+    """
     from pycocotools.mask import encode
 
     def single_encode(x):
+        """Encodes binary mask arrays into RLE (Run-Length Encoding) format for JSON serialization."""
         rle = encode(np.asarray(x[:, :, None], order="F", dtype="uint8"))[0]
         rle["counts"] = rle["counts"].decode("utf-8")
         return rle
@@ -108,13 +114,14 @@ def save_one_json(predn, jdict, path, class_map, pred_masks):
 
 
 def process_batch(detections, labels, iouv, pred_masks=None, gt_masks=None, overlap=False, masks=False):
-    """
-    Return correct prediction matrix
-    Arguments:
-        detections (array[N, 6]), x1, y1, x2, y2, conf, class
-        labels (array[M, 5]), class, x1, y1, x2, y2
+    """Return correct prediction matrix.
+
+    Args:
+        detections (array[N, 6]): x1, y1, x2, y2, conf, class
+        labels (array[M, 5]): class, x1, y1, x2, y2
+
     Returns:
-        correct (array[N, 10]), for 10 IoU levels
+        correct (array[N, 10]), for 10 IoU levels.
     """
     if masks:
         if overlap:
@@ -177,6 +184,7 @@ def run(
     compute_loss=None,
     callbacks=Callbacks(),
 ):
+    """Validate a YOLOv5 segmentation model on specified dataset, producing metrics, plots, and optional JSON output."""
     if save_json:
         check_requirements("pycocotools>=2.0.6")
         process = process_mask_native  # more accurate
@@ -437,6 +445,9 @@ def run(
 
 
 def parse_opt():
+    """Parses command line arguments for configuring YOLOv5 options like dataset path, weights, batch size, and
+    inference settings.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", type=str, default=ROOT / "data/coco128-seg.yaml", help="dataset.yaml path")
     parser.add_argument("--weights", nargs="+", type=str, default=ROOT / "yolov5s-seg.pt", help="model path(s)")
@@ -469,6 +480,7 @@ def parse_opt():
 
 
 def main(opt):
+    """Executes YOLOv5 tasks including training, validation, testing, speed, and study with configurable options."""
     check_requirements(ROOT / "requirements.txt", exclude=("tensorboard", "thop"))
 
     if opt.task in ("train", "val", "test"):  # run normally
