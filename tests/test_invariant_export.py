@@ -82,9 +82,10 @@ def test_export_edgetpu_no_shell_true():
         result.stdout = b"2.1.0"
         return result
 
-    with patch.object(export_module, "subprocess") as mock_subprocess, patch.object(
-        export_module, "platform"
-    ) as mock_platform:
+    with (
+        patch.object(export_module, "subprocess") as mock_subprocess,
+        patch.object(export_module, "platform") as mock_platform,
+    ):
         mock_platform.system.return_value = "Linux"
         mock_subprocess.DEVNULL = subprocess.DEVNULL
         mock_subprocess.PIPE = subprocess.PIPE
